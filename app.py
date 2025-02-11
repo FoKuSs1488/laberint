@@ -46,7 +46,7 @@ while game:
     monster.reset()
 
 
-    display.undate()
+    display.update()
     clock.tick(FPS)
 
 

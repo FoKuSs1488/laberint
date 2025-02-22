@@ -28,7 +28,6 @@ class Player(GameSprite):
             self.rect.y += self.speed
 
 
-
 class Enemy(GameSprite):
     direction = 'left'
 
@@ -43,9 +42,29 @@ class Enemy(GameSprite):
         else:
             self.rect.x += self.speed
 
-
 win_width = 700
 win_height = 500
+
+class Wall(sprite.Sprite):
+    def __init__(self, color_1, color_2, color_3, wall_x, wall_y, wall_width, wall_height):
+        super().__init__()
+        self.color_1 = color_1
+        self.color_2 = color_2
+        self.color_3 = color_3
+        self.width = wall_width
+        self.height = wall_height
+
+        self.image = Surface((self.width, self.height))
+        self.image.fill((color_1, color_2, color_3))
+
+        self.rect = self.image.get_rect()
+        self.rect.x = wall_x
+        self.rect.y = wall_y
+
+
+
+    def draw_wall(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
 
 
 window = display.set_mode((win_width, win_height))
@@ -61,13 +80,24 @@ game = True
 clock = time.Clock()
 FPS = 60
 
-
-
 finish = False
+
+w1 = Wall(154, 205, 50, 100, 20, 450, 10)
+w2 = Wall(154, 205, 50, 100, 480, 350, 10)
+w3 = Wall(154, 205, 50, 100, 20, 10, 380)
+
+
+font.init()
+font = font.Font(None, 70)
+win = font.render('YOU WIN!', True, (255, 215, 0))
+lose = font.render('YUO LOSE!', True, (180, 0, 0))
 
 mixer.init()
 mixer.music.load('jungles.ogg')
 mixer.music.play()
+
+money = mixer.Sound('money.ogg')
+kick = mixer.Sound('kick.ogg')
 
 while game:
     for e in event.get():
@@ -82,6 +112,23 @@ while game:
 
         player.reset()
         monster.reset()
+        final.reset()
+
+        w1.draw_wall()
+        w2.draw_wall()
+        w3.draw_wall()
+
+    if (sprite.collide_rect(player, monster) or sprite.collide_rect(player, w1) or sprite.collide_rect(player, w2) or sprite.collide_rect(player, w3)):
+        window.blit(lose, (200, 200))
+        if not finish:
+            kick.play()
+            finish = True
+
+    if sprite.collide_rect(player, final):
+        window.blit(win, (200, 200))
+        if not finish:
+            money.play()
+            finish = True
 
 
     display.update()
